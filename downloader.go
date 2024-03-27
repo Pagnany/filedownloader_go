@@ -15,7 +15,7 @@ func main() {
 	time_start := time.Now()
 
 	var wg sync.WaitGroup
-	file, _ := os.Open("urls_2.csv")
+	file, _ := os.Open("urls/urls_2.csv")
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
