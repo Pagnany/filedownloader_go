@@ -39,6 +39,11 @@ func DownloadPicture(link string) {
 	split_str := strings.Split(link, "/")
 	name := split_str[len(split_str)-1]
 
+	_, errpath := os.Stat("files/" + name)
+	if errpath == nil {
+		return
+	}
+
 	res, err := http.Get(link)
 	if err != nil {
 		log.Fatal(err)
