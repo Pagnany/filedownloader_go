@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -18,27 +19,37 @@ func main() {
 	file, _ := os.Open("urls/urls_2.csv")
 	defer file.Close()
 
+	// Get all paths in slice
+	links := []string{}
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		link := scanner.Text()
+		links = append(links, scanner.Text())
+	}
+
+	// Remove duplicates from slice
+	slices.Sort(links)
+	links = slices.Compact(links)
+
+	for _, link := range links {
 		wg.Add(1)
 		go func(n string) {
 			defer wg.Done()
 			DownloadPicture(n)
 		}(link)
 	}
-
 	wg.Wait()
 
+	// Get the time
 	elapsed := time.Now().Sub(time_start)
 	println("Total time in s: ")
-	println(elapsed / 1000000000)
+	println(elapsed / 1_000_000_000)
 }
 
 func DownloadPicture(link string) {
 	split_str := strings.Split(link, "/")
 	name := split_str[len(split_str)-1]
 
+	// Does File exist
 	_, errpath := os.Stat("files/" + name)
 	if errpath == nil {
 		return
