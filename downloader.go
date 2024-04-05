@@ -30,6 +30,8 @@ func main() {
 	slices.Sort(links)
 	links = slices.Compact(links)
 
+	log.Printf("Link count: %v\n", len(links))
+
 	for _, link := range links {
 		wg.Add(1)
 		go func(n string) {
@@ -41,15 +43,14 @@ func main() {
 
 	// Get the time
 	elapsed := time.Now().Sub(time_start)
-	println("Total time in s: ")
-	println(elapsed / 1_000_000_000)
+	log.Printf("Total time in s: %d\n", elapsed/1_000_000_000)
 }
 
 func DownloadPicture(link string) {
 	split_str := strings.Split(link, "/")
 	name := split_str[len(split_str)-1]
 
-	// Does File exist
+	// Does file already exist
 	_, errpath := os.Stat("files/" + name)
 	if errpath == nil {
 		return
@@ -57,18 +58,21 @@ func DownloadPicture(link string) {
 
 	res, err := http.Get(link)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return
 	}
 
 	content, err2 := io.ReadAll(res.Body)
 	if err2 != nil {
-		log.Fatal(err2)
+		log.Print(err2)
+		return
 	}
 
 	res.Body.Close()
 
 	err3 := os.WriteFile("files/"+name, content, 0644)
 	if err3 != nil {
-		log.Fatal(err3)
+		log.Print(err3)
+		return
 	}
 }
